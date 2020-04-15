@@ -4,6 +4,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/irismod/record"
+	"github.com/irismod/token"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -59,6 +62,8 @@ var (
 		supply.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
+		record.AppModuleBasic{},
+		token.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -116,6 +121,8 @@ type IrisApp struct {
 	paramsKeeper   params.Keeper
 	upgradeKeeper  upgrade.Keeper
 	evidenceKeeper evidence.Keeper
+	recordKeeper   record.Keeper
+	tokenKeeper    token.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -162,6 +169,7 @@ func NewIrisApp(
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	app.subspaces[crisis.ModuleName] = app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
+	app.subspaces[token.ModuleName] = app.paramsKeeper.Subspace(token.DefaultParamspace)
 
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -220,6 +228,11 @@ func NewIrisApp(
 		staking.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
+	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
+	app.tokenKeeper = token.NewKeeper(app.cdc, keys[record.StoreKey], app.subspaces[record.ModuleName],
+		app.supplyKeeper, auth.FeeCollectorName,
+	)
+
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -235,6 +248,8 @@ func NewIrisApp(
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
+		record.NewAppModule(app.recordKeeper, app.accountKeeper),
+		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -249,6 +264,7 @@ func NewIrisApp(
 		distr.ModuleName, staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
+		record.ModuleName, token.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -267,6 +283,8 @@ func NewIrisApp(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
+		record.NewAppModule(app.recordKeeper, app.accountKeeper),
+		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
