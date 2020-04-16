@@ -74,6 +74,7 @@ var (
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 		gov.ModuleName:            {supply.Burner},
+		token.ModuleName:          nil,
 	}
 )
 
@@ -146,6 +147,7 @@ func NewIrisApp(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
+		record.StoreKey, token.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -229,7 +231,7 @@ func NewIrisApp(
 	)
 
 	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
-	app.tokenKeeper = token.NewKeeper(app.cdc, keys[record.StoreKey], app.subspaces[record.ModuleName],
+	app.tokenKeeper = token.NewKeeper(app.cdc, keys[record.StoreKey], app.subspaces[token.ModuleName],
 		app.supplyKeeper, auth.FeeCollectorName,
 	)
 
