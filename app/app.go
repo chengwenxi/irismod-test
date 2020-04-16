@@ -74,7 +74,7 @@ var (
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 		gov.ModuleName:            {supply.Burner},
-		token.ModuleName:          nil,
+		token.ModuleName:          {supply.Minter, supply.Burner},
 	}
 )
 
