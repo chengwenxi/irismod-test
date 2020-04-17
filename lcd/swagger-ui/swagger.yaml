@@ -28,8 +28,8 @@ tags:
     description: Minting module APIs
   - name: Misc
     description: Query app version
-  - name: Asset
-    description: Asset module APIs
+  - name: Token
+    description: Token module APIs
   - name: Record
     description: Record module APIs
 schemes:
@@ -1931,39 +1931,41 @@ paths:
     post:
       summary: Issue a token
       tags:
-        - Asset
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                base_tx:
-                  $ref: '#/components/schemas/BaseTx'
-                owner:
-                  $ref: '#/components/schemas/Address'
-                name:
-                  type: string
-                  example: 'Hello Kitty'
-                symbol:
-                  type: string
-                  example: 'cat'
-                min_unit:
-                  type: string
-                  example: 'min'
-                initial_supply:
-                  type: string
-                  example: '1000000000'
-                max_supply:
-                  type: string
-                  example: '2000000000'
-                scale:
-                  type: integer
-                  example: 18
-                mintable:
-                  type: boolean
-                  example: true
-        required: true
+        - Token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          schema:
+            type: object
+            properties:
+              base_tx:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              name:
+                type: string
+                example: 'Hello Kitty'
+              symbol:
+                type: string
+                example: 'cat'
+              min_unit:
+                type: string
+                example: 'min'
+              initial_supply:
+                type: string
+                example: '1000000000'
+              max_supply:
+                type: string
+                example: '2000000000'
+              scale:
+                type: integer
+                example: '18'
+              mintable:
+                type: boolean
+                example: 'true'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -1974,7 +1976,7 @@ paths:
     get:
       summary: Query tokens by owner
       tags:
-        - Asset
+        - Token
       parameters:
         - in: query
           name: owner
@@ -1997,7 +1999,7 @@ paths:
     get:
       summary: Query a token by symbol
       tags:
-        - Asset
+        - Token
       parameters:
         - in: path
           name: symbol
@@ -2026,7 +2028,7 @@ paths:
           schema:
             type: string
       tags:
-        - Asset
+        - Token
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2041,9 +2043,9 @@ paths:
               type: object
               properties:
                 base_tx:
-                  $ref: '#/components/schemas/BaseTx'
+                  $ref: '#/definitions/BaseReq'
                 owner:
-                  $ref: '#/components/schemas/Address'
+                  $ref: '#/definitions/Address'
                 max_supply:
                   type: integer
                   example: '21000000'
@@ -2056,6 +2058,10 @@ paths:
   '/tokens/{symbol}/mint':
     post:
       summary: Mint tokens to a specified address
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: path
           name: symbol
@@ -2063,8 +2069,21 @@ paths:
           required: true
           schema:
             type: string
+        - in: body
+          schema:
+            type: object
+            properties:
+              base_tx:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              to:
+                $ref: '#/definitions/Address'
+              amount:
+                type: integer
+                example: '21000000'
       tags:
-        - Asset
+        - Token
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2072,24 +2091,13 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                base_tx:
-                  $ref: '#/components/schemas/BaseTx'
-                owner:
-                  $ref: '#/components/schemas/Address'
-                to:
-                  $ref: '#/components/schemas/Address'
-                amount:
-                  type: integer
-                  example: '21000000'
   '/tokens/{symbol}/transfer':
     post:
       summary: Transfer the ownership of the token to a new owner
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: path
           name: symbol
@@ -2097,8 +2105,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: body
+          schema:
+            type: object
+            properties:
+              base_tx:
+                $ref: '#/definitions/BaseReq'
+              src_owner:
+                $ref: '#/definitions/Address'
+              dst_owner:
+                $ref: '#/definitions/Address'
       tags:
-        - Asset
+        - Token
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2106,23 +2124,11 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                base_tx:
-                  $ref: '#/components/schemas/BaseTx'
-                src_owner:
-                  $ref: '#/components/schemas/Address'
-                dst_owner:
-                  $ref: '#/components/schemas/Address'
   '/tokens/{symbol}/fee':
     get:
       summary: Query the fees for issuing and minting the token with the given symbol
       tags:
-        - Asset
+        - Token
       parameters:
         - in: path
           name: symbol
@@ -2136,7 +2142,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenFeesOutput'
+                $ref: '#/definitions/TokenFeesOutput'
         '400':
           description: Invalid symbol
         '500':
@@ -2146,31 +2152,33 @@ paths:
       summary: Create a record
       tags:
         - Record
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                base_tx:
-                  $ref: '#/components/schemas/BaseTx'
-                contents:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      digest:
-                        type: string
-                      digest_algo:
-                        type: string
-                        example: 'SHA256'
-                      uri:
-                        type: string
-                      meta:
-                        type: string
-                creator:
-                  $ref: '#/components/schemas/Address'
-        required: true
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          schema:
+            type: object
+            properties:
+              base_tx:
+                $ref: '#/definitions/BaseReq'
+              contents:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    digest:
+                      type: string
+                    digest_algo:
+                      type: string
+                      example: 'SHA256'
+                    uri:
+                      type: string
+                    meta:
+                      type: string
+              creator:
+                $ref: '#/definitions/Address'  
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2200,17 +2208,22 @@ paths:
                 properties:
                   tx_hash:
                     type: string
-                  digest:
-                    type: string
-                  digest_algo:
-                    type: string
-                    example: 'SHA256'
-                  uri:
-                    type: string
-                  meta:
-                    type: string
+                  contents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        digest:
+                          type: string
+                        digest_algo:
+                          type: string
+                          example: 'SHA256'
+                        uri:
+                          type: string
+                        meta:
+                          type: string
                   creator:
-                    $ref: '#/components/schemas/Address'
+                    $ref: '#/definitions/Address'
         '400':
           description: Invalid symbol
         '500':
