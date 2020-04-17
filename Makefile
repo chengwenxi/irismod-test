@@ -71,7 +71,7 @@ include contrib/devtools/Makefile
 
 all: install lint test
 
-build: go.sum
+build: go.sum update-swagger-docs
 ifeq ($(OS),Windows_NT)
 	go build -mod=readonly $(BUILD_FLAGS) -o build/gaiad.exe ./cmd/iris
 	go build -mod=readonly $(BUILD_FLAGS) -o build/gaiacli.exe ./cmd/iriscli
@@ -80,7 +80,7 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o build/gaiacli ./cmd/iriscli
 endif
 
-build-linux: go.sum
+build-linux: go.sum update-swagger-docs
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
 build-contract-tests-hooks:
@@ -90,9 +90,18 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o build/contract_tests ./cmd/contract_tests
 endif
 
-install: go.sum
+install: go.sum update-swagger-docs
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iris
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iriscli
+
+update-swagger-docs:
+	statik -src=lcd/swagger-ui -dest=lcd -f -m
+	@if [ -n "$(git status --porcelain)" ]; then \
+        echo "\033[91mSwagger docs are out of sync!!!\033[0m";\
+        exit 1;\
+    else \
+    	echo "\033[92mSwagger docs are in sync\033[0m";\
+    fi
 
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
@@ -169,9 +178,9 @@ lint:
 	go mod verify
 
 format:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gofmt -w -s
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs goimports -w -local github.com/cosmos/cosmos-sdk
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./lcd/statik/statik.go" | xargs gofmt -w -s
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./lcd/statik/statik.go" | xargs misspell -w
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./lcd/statik/statik.go" | xargs goimports -w -local github.com/chengwenxi/irismod-test
 
 ###############################################################################
 ###                                Localnet                                 ###

@@ -25,6 +25,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"irismod-test/app"
+	_ "irismod-test/lcd/statik"
 )
 
 func main() {
