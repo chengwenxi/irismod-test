@@ -32,9 +32,7 @@ tags:
     description: Token module APIs
   - name: Record
     description: Record module APIs
-schemes:
-  - https
-host: stargate.cosmos.network
+host: localhost:1317
 securityDefinitions:
   kms:
     type: basic
@@ -1927,7 +1925,7 @@ paths:
           description: Invalid coin denomination
         500:
           description: Internal Server Error
-  '/tokens':
+  '/token':
     post:
       summary: Issue a token
       tags:
@@ -1995,7 +1993,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/tokens/{symbol}':
+  '/token/{symbol}':
     get:
       summary: Query a token by symbol
       tags:
@@ -2055,7 +2053,7 @@ paths:
                 name:
                   type: string
                   example: 'BTC Token'
-  '/tokens/{symbol}/mint':
+  'token/{symbol}/mint':
     post:
       summary: Mint tokens to a specified address
       consumes:
@@ -2091,7 +2089,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/tokens/{symbol}/transfer':
+  '/token/{symbol}/transfer':
     post:
       summary: Transfer the ownership of the token to a new owner
       consumes:
@@ -2124,7 +2122,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/tokens/{symbol}/fee':
+  '/token/{symbol}/fee':
     get:
       summary: Query the fees for issuing and minting the token with the given symbol
       tags:
