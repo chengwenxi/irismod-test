@@ -1936,6 +1936,8 @@ paths:
         - application/json
       parameters:
         - in: body
+          name: token
+          required: true
           schema:
             type: object
             properties:
@@ -1960,16 +1962,16 @@ paths:
                 example: '2000000000'
               scale:
                 type: integer
-                example: '18'
+                example: 18
               mintable:
                 type: boolean
-                example: 'true'
+                example: true
       responses:
-        '200':
+        200:
           description: Unsigned tx was succesfully generated
-        '400':
+        400:
           description: Invalid parameters
-        '500':
+        500:
           description: Internal Server Error
     get:
       summary: Query tokens by owner
@@ -1983,15 +1985,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
-        '400':
+        400:
           description: Invalid parameters
-        '500':
+        500:
           description: Internal Server Error
   '/token/{symbol}':
     get:
@@ -2006,15 +2008,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Token'
-        '400':
+        400:
           description: Invalid symbol
-        '500':
+        500:
           description: Internal Server Error
     put:
       summary: Edit an existing token
@@ -2025,35 +2027,35 @@ paths:
           required: true
           schema:
             type: string
+        - in: body
+          name: token
+          required: true
+          schema:
+            type: object
+            properties:
+              base_tx:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              max_supply:
+                type: string
+                example: '21000000'
+              mintable:
+                type: string
+                example: ""
+              name:
+                type: string
+                example: 'BTC Token'
       tags:
         - Token
       responses:
-        '200':
+        200:
           description: Unsigned tx was succesfully generated
-        '400':
+        400:
           description: Invalid parameters
-        '500':
-          description: Internal Server Error
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                base_tx:
-                  $ref: '#/definitions/BaseReq'
-                owner:
-                  $ref: '#/definitions/Address'
-                max_supply:
-                  type: integer
-                  example: '21000000'
-                mintable:
-                  type: string
-                  example: ""
-                name:
-                  type: string
-                  example: 'BTC Token'
-  'token/{symbol}/mint':
+        500:
+          description: Internal Server Error 
+  '/token/{symbol}/mint':
     post:
       summary: Mint tokens to a specified address
       consumes:
@@ -2068,6 +2070,8 @@ paths:
           schema:
             type: string
         - in: body
+          name: token
+          required: true
           schema:
             type: object
             properties:
@@ -2078,16 +2082,16 @@ paths:
               to:
                 $ref: '#/definitions/Address'
               amount:
-                type: integer
+                type: string
                 example: '21000000'
       tags:
         - Token
       responses:
-        '200':
+        200:
           description: Unsigned tx was succesfully generated
-        '400':
+        400:
           description: Invalid parameters
-        '500':
+        500:
           description: Internal Server Error
   '/token/{symbol}/transfer':
     post:
@@ -2104,6 +2108,8 @@ paths:
           schema:
             type: string
         - in: body
+          name: transfer
+          required: true
           schema:
             type: object
             properties:
@@ -2116,11 +2122,11 @@ paths:
       tags:
         - Token
       responses:
-        '200':
+        200:
           description: Unsigned tx was succesfully generated
-        '400':
+        400:
           description: Invalid parameters
-        '500':
+        500:
           description: Internal Server Error
   '/token/{symbol}/fee':
     get:
@@ -2135,15 +2141,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/definitions/TokenFeesOutput'
-        '400':
+        400:
           description: Invalid symbol
-        '500':
+        500:
           description: Internal Server Error
   '/record/records':
     post:
@@ -2156,10 +2162,12 @@ paths:
         - application/json
       parameters:
         - in: body
+          name: record
+          required: true
           schema:
             type: object
             properties:
-              base_tx:
+              base_req:
                 $ref: '#/definitions/BaseReq'
               contents:
                 type: array
@@ -2178,11 +2186,11 @@ paths:
               creator:
                 $ref: '#/definitions/Address'  
       responses:
-        '200':
+        200:
           description: Unsigned tx was succesfully generated
-        '400':
+        400:
           description: Invalid parameters
-        '500':
+        500:
           description: Internal Server Error
   '/record/records/{record-id}':
     get:
@@ -2197,7 +2205,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
@@ -2222,9 +2230,9 @@ paths:
                           type: string
                   creator:
                     $ref: '#/definitions/Address'
-        '400':
+        400:
           description: Invalid symbol
-        '500':
+        500:
           description: Internal Server Error
 definitions:
   CheckTxResult:
